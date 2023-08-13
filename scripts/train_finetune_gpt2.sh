@@ -1,8 +1,10 @@
+#!/bin/sh
+
 python train.py \
-    --data_path datasets/clip_caption.pkl \
+    --data_path datasets/preprocessed/clip_caption.pkl \
     --gpt2_path pretrain_models/gpt2 \
     --bert_path pretrain_models/bert \
-    --output_path output/finetune \
+    --output_path output/trained/finetune \
     --lr 2e-5 \
     --epochs 40 \
     --prefix_len 10 \
