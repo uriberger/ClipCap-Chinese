@@ -31,7 +31,8 @@ def set_args():
     parser.add_argument('--max_len', type=int, default=100)
     parser.add_argument('--num_workers', type=int, default=0)
     parser.add_argument('--warmup_steps', type=int, default=5000)
-    parser.add_argument("--save_step", type=int, default=1000, help="训练多少步，保存一次模型")
+    parser.add_argument("--save_step", type=int, default=-1, help="训练多少步，保存一次模型")
+    parser.add_argument("--save_epoch", type=int, default=-1)
     parser.add_argument("--eval_step", type=int, default=100, help="训练多少步,记录一次指标")
     parser.add_argument('--finetune_gpt2', help='finetune gpt2', action='store_true', default=False)
     parser.add_argument('--mapping_type', type=str, default='mlp', choices=['mlp', 'bert'], help='mlp or bert')
@@ -72,10 +73,19 @@ def train(model, train_loader, dev_dataloader, optimizer, scheduler, args):
                 logger.info('loss at step {} is {}'.format(step, dev_loss.item()))
                 model.train()
 
-            if step % args.save_step == 0:
+            if args.save_step != -1 and step % args.save_step == 0:
                 logger.info('saving checkpoint at step {}'.format(step))
                 save_path = join(args.output_path, 'checkpoint-{}.pt'.format(step))
                 torch.save(model.state_dict(), save_path)
+
+        if args.save_epoch != -1 and epoch % args.save_epoch == 0:
+            logger.info('saving checkpoint at epoch {}'.format(epoch))
+            save_path = join(args.output_path, 'checkpoint-epoch-{}.pt'.format(epoch))
+            torch.save(model.state_dict(), save_path)
+
+    logger.info('saving checkpoint after training')
+    save_path = join(args.output_path, 'checkpoint-last.pt')
+    torch.save(model.state_dict(), save_path)
 
 
 def evaluate(args, model, dataloader):
