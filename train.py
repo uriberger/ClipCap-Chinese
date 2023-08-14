@@ -39,6 +39,7 @@ def set_args():
     parser.add_argument('--normalize_prefix', dest='normalize_prefix', action='store_true')
     parser.add_argument("--do_train", action='store_true', default=True)
     # parser.add_argument("--do_test", action='store_true', default=True)
+    parser.add_argument('--load_path', type=str)
     args = parser.parse_args()
     return args
 
@@ -124,7 +125,14 @@ def main(args):
     model = ClipCaptionModel(
         args.gpt2_path, bert_config, args.prefix_len, args.clip_size, args.mapping_type,
         args.finetune_gpt2, args.constant_len
-    ).to(args.device)
+    )
+
+    if args.load_path is not None:
+        checkpoint = torch.load(args.load_path)
+        model.load_state_dict(checkpoint)
+        logger.info(f'Loaded model from {args.load_path}')
+
+    model = model.to(args.device)
 
     if args.do_train:
         # 加载数据集
