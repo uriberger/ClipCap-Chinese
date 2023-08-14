@@ -150,7 +150,7 @@ def main(args):
         # 每num_generate个caption对应一张图片
         captions = ['\t'.join(captions[i: i+args.num_generate]) for i in range(0, clip_embeds.size(0), args.num_generate)]
 
-        res += [{'image_id': image_ids[i], 'caption': captions[i]} for i in range(batch_size)]
+        res += [{'image_id': image_ids[i].item(), 'caption': captions[i]} for i in range(batch_size)]
 
     with open(args.output_path, 'w', encoding='utf8') as f:
         f.write(json.dumps(res))
