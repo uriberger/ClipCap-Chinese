@@ -1,4 +1,4 @@
-import defaultdict
+from collections import defaultdict
 import json
 import sys
 import random
@@ -20,4 +20,4 @@ for x in translated_data:
 with open(f'reformulation_experiment/data/translated_train_data/translated_train_data_{exp_ind}.txt', 'w') as fp:
     for image_id, captions in image_id_to_captions.items():
         if image_id in image_ids_dict:
-            cur_fp.write(f'{image_id}\t{random.choice(captions)}\n')
+            fp.write(f'{image_id}\t{random.choice(captions)}\n')

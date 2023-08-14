@@ -28,7 +28,7 @@ venv/bin/python predict.py --image_ids_path reformulation_experiment/data/image_
 
 # Translation based training
 echo "$MSG_PREFIX Prepare translated training data"
-venv/bin/python reformulation_experiment/prepare_translation_train_data.py ${EXP_IND}
+venv/bin/python reformulation_experiment/prepare_translation_training_data.py ${EXP_IND}
 echo "$MSG_PREFIX Translation preprocess"
 venv/bin/python process_flickr.py --clip_model_path ViT-B/32 --image_path /cs/labs/oabend/uriber/datasets/flickr30/images --caption_path reformulation_experiment/data/translated_train_data/translated_train_data_${EXP_IND}.txt --output_path reformulation_experiment/data/translated_train_data/preprocessed_data_${EXP_IND}.pkl
 echo "$MSG_PREFIX Translation training"
