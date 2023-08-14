@@ -141,9 +141,10 @@ def main(args):
     res = []
     for batch_idx, data in enumerate(tqdm(dataloader)):
         images, image_ids = data
+        images = images.to(args.device)
         batch_size = len(image_ids)
         clip_embeds = clip_model.encode_image(images)
-        clip_embeds = clip_embeds.unsqueeze(1).repeat(1, args.num_generate, 1).view(-1, clip_embeds.size(-1))
+        clip_embeds = clip_embeds.unsqueeze(1).repeat(1, args.num_generate, 1).view(-1, clip_embeds.size(-1)).float()
         captions = generate(model, clip_embeds, tokenizer, args)
 
         # 每num_generate个caption对应一张图片
@@ -177,6 +178,4 @@ if __name__ == '__main__':
     parser.add_argument('--normalize_prefix', dest='normalize_prefix', action='store_true')
     args = parser.parse_args()
     args.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    if not os.path.exists(args.output_path):
-        os.makedirs(args.output_path)
     main(args)
