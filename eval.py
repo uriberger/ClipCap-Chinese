@@ -49,27 +49,15 @@ for pattern in input_patterns:
         with open(file_path, 'r') as fp:
             data[pattern][file_path] = json.load(fp)
 
-# Check that all results are on the same image ids
-image_ids = None
-for pattern, file_paths in data.items():
-    for result in file_paths.values():
-        cur_image_ids = [x['image_id'] for x in result]
-        if image_ids is None:
-            image_ids = cur_image_ids
-        else:
-            assert len(set(image_ids).intersection(cur_image_ids)) == len(image_ids), 'Not all results are on the same image ids'
-image_ids_dict = {x: True for x in image_ids}
-
 # Prepare gt captions
 gt_data = defaultdict(list)
 with open('datasets/flickr_caption.txt', 'r') as f:
     for line in fp:
         line = line.strip()
         image_id, caption = line.split('\t')
-        if image_id in image_ids_dict:
-            non_tokenized_caption = ''.join(caption.split())
-            tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
-            gt_data[image_id].append(tokenized_caption)
+        non_tokenized_caption = ''.join(caption.split())
+        tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
+        gt_data[image_id].append(tokenized_caption)
 
 for pattern, file_paths in data.items():
     res = defaultdict(list)
@@ -82,7 +70,9 @@ for pattern, file_paths in data.items():
             tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
             candidates[image_id] = [tokenized_caption]
 
-        metrics = compute_metrics(gt_data, candidates)
+        cur_gt_data = {x[0]: x[1] for x in gt_data.items() if x[0] in candidates}
+
+        metrics = compute_metrics(cur_gt_data, candidates)
         for metric_name, metric_res in metrics:
             res[metric_name].append(metric_res)
     print('>>>>>>>>>>')
