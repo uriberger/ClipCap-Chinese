@@ -1,16 +1,9 @@
 import torch
-import torch.nn as nn
-from torch.nn import functional as nnf
-from torch.utils.data import Dataset, DataLoader
-from enum import Enum
-from transformers import GPT2Tokenizer, GPT2LMHeadModel, AdamW, get_linear_schedule_with_warmup, BertTokenizer
-from tqdm import tqdm
+from torch.utils.data import Dataset
 import os
 import pickle
-import sys
-import argparse
 import json
-from typing import Tuple, Optional, Union
+from typing import Tuple
 from os.path import join
 from loguru import logger
 import glob
@@ -84,18 +77,17 @@ class ClipCapDataset(Dataset):
 
 class ImageDataset(Dataset):
     def __init__(self, path, preprocess):
-        # 加载路径下的所有图片
         self.images = []
-        self.image_names = []
-        for file in glob.glob(join(path, '*')):
-            image = io.imread(file)
+        with open(path, 'r') as fp:
+            self.image_ids = json.load(fp)
+        for image_id in self.image_ids:
+            file_path = f'/cs/labs/oabend/uriber/datasets/flickr30/images/{image_id}.jpg'
+            image = io.imread(file_path)
             image = preprocess(Image.fromarray(image)).squeeze(0)
-            filename = os.path.basename(file)
             self.images.append(image)
-            self.image_names.append(filename)
 
     def __getitem__(self, item):
-        return self.images[item], self.image_names[item]
+        return self.images[item], self.image_ids[item]
 
     def __len__(self) -> int:
         return len(self.images)

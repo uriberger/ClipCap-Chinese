@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader
 from transformers import BertConfig, BertTokenizer
 from tqdm import tqdm
 import os
+import json
 import argparse
 from dataset import ImageDataset
 from models.model import ClipCaptionModel
@@ -133,35 +134,30 @@ def main(args):
     clip_model, preprocess = clip.load(args.clip_model_path, device=args.device, jit=False)
 
     # 加载数据集
-    dataset = ImageDataset(args.image_path, preprocess)
+    dataset = ImageDataset(args.image_ids_path, preprocess)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
     logger.info('start predicting')
 
-    captions_generate = []
-    image_name_list = []
+    res = []
     for batch_idx, data in enumerate(tqdm(dataloader)):
-        images, image_names = data
+        images, image_ids = data
+        batch_size = len(image_ids)
         clip_embeds = clip_model.encode_image(images)
         clip_embeds = clip_embeds.unsqueeze(1).repeat(1, args.num_generate, 1).view(-1, clip_embeds.size(-1))
         captions = generate(model, clip_embeds, tokenizer, args)
 
         # 每num_generate个caption对应一张图片
         captions = ['\t'.join(captions[i: i+args.num_generate]) for i in range(0, clip_embeds.size(0), args.num_generate)]
-        captions_generate += captions
-        image_name_list += image_names
 
-    if args.finetune_gpt2:
-        save_path = join(args.output_path, 'caption_generate_finetune.txt')
-    else:
-        save_path = join(args.output_path, 'caption_generate_no_finetune.txt')
-    with open(save_path, 'w', encoding='utf8') as f:
-        for caption, image_name in zip(captions_generate, image_name_list):
-            f.write('{}\t{}\n'.format(image_name, caption))
+        res += [{'image_id': image_ids[i], 'caption': captions[i]} for i in range(batch_size)]
+
+    with open(args.output_path, 'w', encoding='utf8') as f:
+        f.write(json.dumps(res))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--image_path', default='datasets/test')
+    parser.add_argument('--image_ids_path', required=True)
     parser.add_argument('--model_path', default='output/mlp_finetune/checkpoint-35000.pt')
     parser.add_argument('--gpt2_model_path', default="pretrain_models/gpt2")
     parser.add_argument('--bert_model_path', default="pretrain_models/bert")
