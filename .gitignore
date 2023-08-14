@@ -4,3 +4,4 @@ datasets/preprocessed
 __pycache__
 output/trained
 pretrain_models/gpt2/pytorch_model.bin
+eval_script
