@@ -73,6 +73,7 @@ with open('datasets/flickr_caption.txt', 'r') as fp:
         tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
         gt_data[image_id].append(tokenized_caption)
 
+all_res = {}
 for pattern, file_paths in data.items():
     res = defaultdict(list)
     for result in file_paths.values():
@@ -87,6 +88,7 @@ for pattern, file_paths in data.items():
         cur_gt_data = {x[0]: x[1] for x in gt_data.items() if x[0] in candidates}
 
         metrics = compute_metrics(cur_gt_data, candidates)
+
         for metric_name, metric_res in metrics.items():
             res[metric_name].append(metric_res)
     print('>>>>>>>>>>')
@@ -97,3 +99,15 @@ for pattern, file_paths in data.items():
         else:
             print(f'\t{metric}: {res[metric][0]}')
     print('<<<<<<<<<<')
+
+    # Record for dumping
+    model_name = pattern.split('_infer_on_')[0]
+    if len(all_res) == 0:
+        all_res = {metric: {} for metric in res.keys()}
+    for metric in res:
+        if len(res[metric]) > 1:
+            all_res[metric][model_name] = (statistics.mean(res[metric]), statistics.stdev(res[metric]))
+        else:
+            all_res[metric][model_name] = (res[metric][0], 0)
+with open('eval_res.json', 'w') as fp:
+    fp.write(json.dumps(all_res))
