@@ -1,7 +1,8 @@
 import jieba
+import os
 import sys
 import json
-import defaultdict
+from collections import defaultdict
 import statistics
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.meteor.meteor import Meteor
@@ -63,10 +64,11 @@ for pattern in input_patterns:
 
 # Prepare gt captions
 gt_data = defaultdict(list)
-with open('datasets/flickr_caption.txt', 'r') as f:
+with open('datasets/flickr_caption.txt', 'r') as fp:
     for line in fp:
         line = line.strip()
         image_id, caption = line.split('\t')
+        image_id = int(image_id)
         non_tokenized_caption = ''.join(caption.split())
         tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
         gt_data[image_id].append(tokenized_caption)
@@ -85,7 +87,7 @@ for pattern, file_paths in data.items():
         cur_gt_data = {x[0]: x[1] for x in gt_data.items() if x[0] in candidates}
 
         metrics = compute_metrics(cur_gt_data, candidates)
-        for metric_name, metric_res in metrics:
+        for metric_name, metric_res in metrics.items():
             res[metric_name].append(metric_res)
     print('>>>>>>>>>>')
     print(pattern)
