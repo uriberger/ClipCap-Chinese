@@ -4,6 +4,7 @@ import sys
 import json
 from collections import defaultdict
 import statistics
+import random
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
@@ -74,6 +75,7 @@ with open('datasets/flickr_caption.txt', 'r') as fp:
         gt_data[image_id].append(tokenized_caption)
 
 all_res = {}
+candidate_image_ids = []
 for pattern, file_paths in data.items():
     res = defaultdict(list)
     for result in file_paths.values():
@@ -84,6 +86,8 @@ for pattern, file_paths in data.items():
             non_tokenized_caption = ''.join(caption.split())
             tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
             candidates[image_id] = [tokenized_caption]
+        if len(candidate_image_ids) < len(file_paths):
+            candidate_image_ids.append(list(candidates.keys()))
 
         cur_gt_data = {x[0]: x[1] for x in gt_data.items() if x[0] in candidates}
 
@@ -91,6 +95,7 @@ for pattern, file_paths in data.items():
 
         for metric_name, metric_res in metrics.items():
             res[metric_name].append(metric_res)
+        
     print('>>>>>>>>>>')
     print(pattern)
     for metric in res:
@@ -109,5 +114,39 @@ for pattern, file_paths in data.items():
             all_res[metric][model_name] = (statistics.mean(res[metric]), statistics.stdev(res[metric]))
         else:
             all_res[metric][model_name] = (res[metric][0], 0)
+
+# Translated captions
+translated_data_dir = 'reformulation_experiment/data/translated_data'
+for file_name in os.listdir(translated_data_dir):
+    translated_res = defaultdict(list)
+    for cur_candidate_image_ids in candidate_image_ids:
+        image_ids_dict = {x: True for x in cur_candidate_image_ids}
+        with open(os.path.join(translated_data_dir, file_name)) as fp:
+            cur_translated_data = json.load(fp)
+        image_id_to_captions = defaultdict(list)
+        for x in cur_translated_data:
+            if x['image_id'] in image_ids_dict:
+                image_id_to_captions[x['image_id']].append(x['caption'])
+        candidates = {x[0]: random.sample(x[1], 1) for x in image_id_to_captions.items()}
+        metrics = compute_metrics(cur_gt_data, candidates)
+        for metric_name, metric_res in metrics.items():
+            translated_res[metric_name].append(metric_res)
+
+    print('>>>>>>>>>>')
+    print(file_name)
+    for metric in translated_res:
+        if len(res[metric]) > 1:
+            print(f'\t{metric}: {statistics.mean(res[metric])} +- {statistics.stdev(res[metric])}')
+        else:
+            print(f'\t{metric}: {res[metric][0]}')
+    print('<<<<<<<<<<')
+
+    # Record for dumping
+    for metric in translated_res:
+        if len(translated_res[metric]) > 1:
+            all_res[metric][file_name] = (statistics.mean(res[metric]), statistics.stdev(res[metric]))
+        else:
+            all_res[metric][file_name] = (res[metric][0], 0)
+
 with open('eval_res.json', 'w') as fp:
     fp.write(json.dumps(all_res))
