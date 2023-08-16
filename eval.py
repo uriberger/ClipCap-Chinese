@@ -7,6 +7,7 @@ from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.cider.cider import Cider
+from evaluate import load
 
 def compute_metrics(references, candidates):
     ###BLEU#####
@@ -30,7 +31,18 @@ def compute_metrics(references, candidates):
     pycoco_cider = Cider()
     cider, _ = pycoco_cider.compute_score(references, candidates)
 
-    return {'bleu1': bleu[0], 'bleu2': bleu[1], 'bleu3': bleu[2], 'bleu4': bleu[3], 'meteor': meteor, 'rouge': rouge, 'cider': cider}
+    ####BERTScore###
+    bertscore = load("bertscore")
+    reference_list = list(references.items())
+    reference_list.sort(key=lambda x:x[0])
+    references = [x[1] for x in reference_list]
+    prediction_list = list(candidates.items())
+    prediction_list.sort(key=lambda x:x[0])
+    predictions = [x[1][0] for x in prediction_list]
+    results = bertscore.compute(predictions=predictions, references=references, lang="zh")
+    bertscore = statistics.mean(results['f1'])
+
+    return {'bleu1': bleu[0], 'bleu2': bleu[1], 'bleu3': bleu[2], 'bleu4': bleu[3], 'meteor': meteor, 'rouge': rouge, 'cider': cider, 'bertscore': bertscore}
 
 assert len(sys.argv) > 1, 'Please insert result files'
 input_patterns = sys.argv[1:]
