@@ -106,7 +106,7 @@ for pattern, file_paths in data.items():
     print('<<<<<<<<<<')
 
     # Record for dumping
-    model_name = pattern.split('_infer_on_')[0]
+    model_name = pattern.split('_infer_on_')[0].split('/')[-1]
     if len(all_res) == 0:
         all_res = {metric: {} for metric in res.keys()}
     for metric in res:
