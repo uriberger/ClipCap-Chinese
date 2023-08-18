@@ -10,6 +10,7 @@ from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.cider.cider import Cider
 from evaluate import load
+from reformulation_experiment.utils import get_flickr8kcn_data
 
 def compute_metrics(references, candidates):
     ###BLEU#####
@@ -65,14 +66,11 @@ for pattern in input_patterns:
 
 # Prepare gt captions
 gt_data = defaultdict(list)
-with open('datasets/flickr_caption.txt', 'r') as fp:
-    for line in fp:
-        line = line.strip()
-        image_id, caption = line.split('\t')
-        image_id = int(image_id)
-        non_tokenized_caption = ''.join(caption.split())
-        tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
-        gt_data[image_id].append(tokenized_caption)
+flickr8kcn_data = get_flickr8kcn_data()
+for sample in flickr8kcn_data:
+    non_tokenized_caption = ''.join(sample['caption'].split())
+    tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
+    gt_data[sample['image_id']].append(tokenized_caption)
 
 all_res = {}
 candidate_image_ids = []
