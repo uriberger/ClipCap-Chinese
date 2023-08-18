@@ -104,7 +104,7 @@ for pattern, file_paths in data.items():
     print('<<<<<<<<<<')
 
     # Record for dumping
-    model_name = pattern.split('_infer_on_')[0]
+    model_name = pattern.split('_infer_on_')[0].split('/')[-1]
     if len(all_res) == 0:
         all_res = {metric: {} for metric in res.keys()}
     for metric in res:
@@ -125,7 +125,13 @@ for file_name in os.listdir(translated_data_dir):
         for x in cur_translated_data:
             if x['image_id'] in image_ids_dict:
                 image_id_to_captions[x['image_id']].append(x['caption'])
-        candidates = {x[0]: random.sample(x[1], 1) for x in image_id_to_captions.items()}
+        image_id_to_caption = {x[0]: random.choice(x[1]) for x in image_id_to_captions.items()}
+        candidates = {}
+        for image_id, caption in image_id_to_caption.items():
+            non_tokenized_caption = ''.join(caption.split())
+            tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
+            candidates[image_id] = [tokenized_caption]
+        cur_gt_data = {x[0]: x[1] for x in gt_data.items() if x[0] in candidates}
         metrics = compute_metrics(cur_gt_data, candidates)
         for metric_name, metric_res in metrics.items():
             translated_res[metric_name].append(metric_res)
@@ -133,18 +139,18 @@ for file_name in os.listdir(translated_data_dir):
     print('>>>>>>>>>>')
     print(file_name)
     for metric in translated_res:
-        if len(res[metric]) > 1:
-            print(f'\t{metric}: {statistics.mean(res[metric])} +- {statistics.stdev(res[metric])}')
+        if len(translated_res[metric]) > 1:
+            print(f'\t{metric}: {statistics.mean(translated_res[metric])} +- {statistics.stdev(translated_res[metric])}')
         else:
-            print(f'\t{metric}: {res[metric][0]}')
+            print(f'\t{metric}: {translated_res[metric][0]}')
     print('<<<<<<<<<<')
 
     # Record for dumping
     for metric in translated_res:
         if len(translated_res[metric]) > 1:
-            all_res[metric][file_name] = (statistics.mean(res[metric]), statistics.stdev(res[metric]))
+            all_res[metric][file_name] = (statistics.mean(translated_res[metric]), statistics.stdev(translated_res[metric]))
         else:
-            all_res[metric][file_name] = (res[metric][0], 0)
+            all_res[metric][file_name] = (translated_res[metric][0], 0)
 
 with open('eval_res.json', 'w') as fp:
     fp.write(json.dumps(all_res))
