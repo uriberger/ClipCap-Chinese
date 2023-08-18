@@ -116,6 +116,8 @@ for pattern, file_paths in data.items():
 # Translated captions
 translated_data_dir = 'reformulation_experiment/data/translated_data'
 for file_name in os.listdir(translated_data_dir):
+    if not file_name.startswith('flickr'):
+        continue
     translated_res = defaultdict(list)
     for cur_candidate_image_ids in candidate_image_ids:
         image_ids_dict = {x: True for x in cur_candidate_image_ids}
