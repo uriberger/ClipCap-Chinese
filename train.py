@@ -137,6 +137,7 @@ def main(args):
     if args.do_train:
         # 加载数据集
         dataset = ClipCapDataset(args.data_path, args.prefix_len, tokenizer, args.max_len, 'train', args.normalize_prefix)
+        logger.info(f'Loaded dataset size: {len(dataset)}')
         train_dataset, dev_dataset = torch.utils.data.random_split(dataset, [len(dataset) - args.dev_size, args.dev_size])
         train_dataloader = DataLoader(train_dataset, batch_size=args.bs_train, shuffle=True, num_workers=args.num_workers)
         dev_dataloader = DataLoader(dev_dataset, batch_size=args.bs_eval, shuffle=True, num_workers=args.num_workers)
