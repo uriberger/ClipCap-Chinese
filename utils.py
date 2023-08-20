@@ -1,6 +1,6 @@
 import json
 import os
-from config import flickr30k_path, flickr8kcn_root
+from config import coco_path, flickr30k_path, flickr8kcn_root
 
 def get_flickr8kcn_data():
     data_dir_name = 'data'
@@ -25,3 +25,8 @@ def get_flickr30k_data():
     with open(flickr30k_path, 'r') as fp:
         flickr_data = json.load(fp)['images']
     return flickr_data
+
+def get_coco_data():
+    with open(coco_path, 'r') as fp:
+        coco_data = json.load(fp)['images']
+    return coco_data
