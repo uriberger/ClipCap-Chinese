@@ -45,7 +45,7 @@ venv/bin/python predict.py --image_ids_path ${BASE_DIR}/data/image_ids/test_imag
 # Reformulations based training
 echo "$MSG_PREFIX zh->en"
 venv/bin/python translate.py --input_file ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}.json --output_file ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}_en_translated --source_language zh --target_language en --output_format caption
-venv/bin/python prepare_data_before_reformulation.py ${EXP_IND}
+venv/bin/python ${BASE_DIR}/prepare_data_before_reformulation.py ${EXP_IND}
 echo "$MSG_PREFIX Reformulation"
 rm -f ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}_en_reformulated_flickr.json
 rm -f ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}_en_reformulated_coco.json
@@ -54,7 +54,7 @@ venv/bin/python reformulate.py --model_path output/vqa_mplug_base/checkpoint_07.
 venv/bin/python reformulate.py --model_path output/vqa_mplug_base/checkpoint_07.pth --input_file ../../ClipCap-Chinese/${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}_en_translated_coco.json --output_format caption --output_file ../../ClipCap-Chinese/${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}_en_reformulated_coco --dataset COCO
 cd ../../ClipCap-Chinese
 echo "$MSG_PREFIX en->zh"
-venv/bin/python prepare_data_after_reformulation.py ${EXP_IND}
+venv/bin/python ${BASE_DIR}/prepare_data_after_reformulation.py ${EXP_IND}
 venv/bin/python translate.py --input_file ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}_en_reformulated.json --output_file ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}_reformulated --source_language en --target_language zh --output_format caption
 echo "$MSG_PREFIX Prepare reformulations training data"
 venv/bin/python ${BASE_DIR}/convert_to_training_data_coco.py ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}_reformulated.json ${BASE_DIR}/data/reformulations_train_data/reformulations_train_data_${EXP_IND}.json ${EXP_IND}
