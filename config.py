@@ -1,0 +1,5 @@
+flickr30k_path = '/cs/labs/oabend/uriber/datasets/flickr30/karpathy/dataset_flickr30k.json'
+flickr8kcn_root = '/cs/labs/oabend/uriber/datasets/flickr8kcn'
+coco_path = '../CLIP_prefix_caption/dataset_coco.json'
+flickr30k_image_path = '/cs/labs/oabend/uriber/datasets/flickr30/images'
+coco_image_path = '/cs/labs/oabend/uriber/datasets/COCO'

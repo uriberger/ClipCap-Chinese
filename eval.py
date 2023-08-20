@@ -10,7 +10,7 @@ from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.cider.cider import Cider
 from evaluate import load
-from reformulation_experiment.utils import get_flickr8kcn_data
+from utils import get_flickr8kcn_data
 
 def compute_metrics(references, candidates):
     ###BLEU#####

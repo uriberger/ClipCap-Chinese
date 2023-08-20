@@ -1,6 +1,7 @@
 import json
 import sys
 import random
+sys.path.append('.')
 from utils import get_flickr8kcn_data, get_flickr30k_data
 
 assert len(sys.argv) == 3
@@ -15,14 +16,13 @@ flickr8kcn_image_ids = list(set([x['image_id'] for x in flickr8kcn_data]))
 base_image_ids = random.sample(flickr8kcn_image_ids, base_train_sample_num)
 base_image_ids_dict = {x: True for x in base_image_ids}
 
+non_train_image_ids = [x for x in flickr8kcn_image_ids if x not in base_image_ids_dict]
+test_image_num = 1000
+test_image_ids = random.sample(non_train_image_ids, test_image_num)
+test_image_dict = {x: True for x in test_image_ids}
+
 flickr30k_data = get_flickr30k_data()
 all_image_ids = [int(x['filename'].split('.jpg')[0]) for x in flickr30k_data]
-flickr8kcn_image_ids_dict = {x: True for x in flickr8kcn_image_ids}
-non_flickr8kcn_image_ids = [x for x in all_image_ids if x not in flickr8kcn_image_ids_dict]
-
-test_image_num = 1000
-test_image_ids = random.sample(non_flickr8kcn_image_ids, test_image_num)
-test_image_dict = {x: True for x in test_image_ids}
 
 additional_image_ids = [x for x in all_image_ids if x not in base_image_ids_dict and x not in test_image_dict]
 additional_image_ids_dict = {x: True for x in additional_image_ids}
