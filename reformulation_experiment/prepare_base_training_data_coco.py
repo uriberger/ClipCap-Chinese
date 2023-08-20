@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import random
+import pickle
 sys.path.append('.')
 from utils import get_flickr8kcn_data, get_flickr30k_data, get_coco_data
 from config import flickr30k_image_path, coco_image_path
@@ -26,13 +27,14 @@ all_flickr_data = [{'image_id': int(x['filename'].split('.jpg')[0]), 'file_path'
 flickr_additional_train_data = [x for x in all_flickr_data if x['image_id'] not in base_image_ids_dict and x['image_id'] not in test_image_dict]
 
 coco_data = get_coco_data()
-all_coco_data = [{'image_id': x['cocoid'], 'file_path': os.path.join(coco_image_path, x['filepath'], x['filename']), 'dataset': 'COCO'}]
+all_coco_data = [{'image_id': x['cocoid'], 'file_path': os.path.join(coco_image_path, x['filepath'], x['filename']), 'dataset': 'COCO'} for x in coco_data]
 
 additional_train_data = flickr_additional_train_data + all_coco_data
 # Create new image ids, so that we'll have unique image ids (otherwise we'll have collisions between flickr and coco)
 flickr_orig_to_new_image_id = {}
 coco_orig_to_new_image_id = {}
 for i in range(len(additional_train_data)):
+    sample = additional_train_data[i]
     if sample['dataset'] == 'flickr30k':
         flickr_orig_to_new_image_id[sample['image_id']] = i
     elif sample['dataset'] == 'COCO':
@@ -46,7 +48,7 @@ with open(f'reformulation_experiment/data/base_train_data/base_train_data_{exp_i
 
 with open(f'reformulation_experiment/data/base_train_data/additional_train_data_{exp_ind}.json', 'w') as fp:
     fp.write(json.dumps(additional_train_data))
-with open(f'reformulation_experiment/data/image_ids/flickr_orig_to_new_image_id_{exp_ind}.json', 'w') as fp:
-    fp.write(json.dumps(flickr_orig_to_new_image_id))
-with open(f'reformulation_experiment/data/image_ids/coco_orig_to_new_image_id_{exp_ind}.json', 'w') as fp:
-    fp.write(json.dumps(coco_orig_to_new_image_id))
+with open(f'reformulation_experiment/data/image_ids/flickr_orig_to_new_image_id_{exp_ind}.pkl', 'wb') as fp:
+    pickle.dump(flickr_orig_to_new_image_id, fp)
+with open(f'reformulation_experiment/data/image_ids/coco_orig_to_new_image_id_{exp_ind}.pkl', 'wb') as fp:
+    pickle.dump(coco_orig_to_new_image_id, fp)
