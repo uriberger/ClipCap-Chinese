@@ -32,7 +32,7 @@ venv/bin/python predict.py --image_ids_path ${BASE_DIR}/data/image_ids/test_imag
 
 # Own captions based training
 echo "$MSG_PREFIX Base inference on additional train"
-venv/bin/python predict.py --image_ids_path ${BASE_DIR}/data/base_train_data/additional_train_data_${EXP_IND}.json --model_path ${BASE_DIR}/output/exp_${EXP_IND}_base/checkpoint-last.pt --gpt2_model_path pretrain_models/gpt2 --bert_model_path pretrain_models/bert --clip_model_path ViT-B/32 --output_path ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}.json --prefix_len 10 --constant_len 10 --clip_size 512 --max_len 100 --batch_size 4 --temperature 1 --topk 0 --topp 0.8 --num_generate 1 --finetune_gpt2 --mapping_type mlp
+venv/bin/python predict.py --image_ids_path ${BASE_DIR}/data/base_train_data/additional_train_data_new_image_ids_${EXP_IND}.json --model_path ${BASE_DIR}/output/exp_${EXP_IND}_base/checkpoint-last.pt --gpt2_model_path pretrain_models/gpt2 --bert_model_path pretrain_models/bert --clip_model_path ViT-B/32 --output_path ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}.json --prefix_len 10 --constant_len 10 --clip_size 512 --max_len 100 --batch_size 4 --temperature 1 --topk 0 --topp 0.8 --num_generate 1 --finetune_gpt2 --mapping_type mlp
 echo "$MSG_PREFIX Prepare own training data"
 venv/bin/python ${BASE_DIR}/convert_to_training_data_coco.py ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}.json ${BASE_DIR}/data/own_train_data/own_train_data_${EXP_IND}.json ${EXP_IND}
 echo "$MSG_PREFIX Own preprocess"

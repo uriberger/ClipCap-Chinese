@@ -16,4 +16,4 @@ train_data = []
 for sample in data:
     train_data.append({'image_id': sample['image_id'], 'image_path': additional_train_data[sample['image_id']]['file_path'], 'caption': sample['caption']})
 with open(output_file, 'w') as fp:
-    output_file.write(json.dumps(train_data))
+    fp.write(json.dumps(train_data))

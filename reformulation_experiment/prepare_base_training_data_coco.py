@@ -39,6 +39,9 @@ for i in range(len(additional_train_data)):
         flickr_orig_to_new_image_id[sample['image_id']] = i
     elif sample['dataset'] == 'COCO':
         coco_orig_to_new_image_id[sample['image_id']] = i
+additional_train_data_new_image_ids = []
+for i in range(len(additional_train_data)):
+    additional_train_data_new_image_ids.append({'image_id': i, 'file_path': additional_train_data[i]['file_path'], 'dataset': additional_train_data[i]['dataset']})
 
 print(f'Collected {len(base_image_ids)} base train samples, {len(additional_train_data)} additional train samples, and {len(test_image_ids)} test samples')
 
@@ -49,6 +52,8 @@ with open(f'reformulation_experiment/data/base_train_data/base_train_data_{exp_i
 
 with open(f'reformulation_experiment/data/base_train_data/additional_train_data_{exp_ind}.json', 'w') as fp:
     fp.write(json.dumps(additional_train_data))
+with open(f'reformulation_experiment/data/base_train_data/additional_train_data_new_image_ids_{exp_ind}.json', 'w') as fp:
+    fp.write(json.dumps(additional_train_data_new_image_ids))
 with open(f'reformulation_experiment/data/image_ids/flickr_orig_to_new_image_id_{exp_ind}.pkl', 'wb') as fp:
     pickle.dump(flickr_orig_to_new_image_id, fp)
 with open(f'reformulation_experiment/data/image_ids/coco_orig_to_new_image_id_{exp_ind}.pkl', 'wb') as fp:
