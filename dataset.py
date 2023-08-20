@@ -76,7 +76,6 @@ class ImageDataset(Dataset):
                 file_path = f'/cs/labs/oabend/uriber/datasets/flickr30/images/{image_id}.jpg'
             elif type(sample) == dict:
                 # Image ids and paths
-                assert len(sample) == 2
                 image_id = sample['image_id']
                 file_path = sample['file_path']
             self.image_ids.append(image_id)
