@@ -44,7 +44,8 @@ print(f'Collected {len(base_image_ids)} base train samples, {len(additional_trai
 
 with open(f'reformulation_experiment/data/base_train_data/base_train_data_{exp_ind}.txt', 'w') as fp:
     for sample in flickr8kcn_data:
-        fp.write(f'{sample["image_id"]}\t{sample["caption"]}\n')
+        if sample['image_id'] in base_image_ids_dict:
+            fp.write(f'{sample["image_id"]}\t{sample["caption"]}\n')
 
 with open(f'reformulation_experiment/data/base_train_data/additional_train_data_{exp_ind}.json', 'w') as fp:
     fp.write(json.dumps(additional_train_data))
