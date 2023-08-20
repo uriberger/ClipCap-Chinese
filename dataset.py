@@ -79,9 +79,19 @@ class ImageDataset(Dataset):
     def __init__(self, path, preprocess):
         self.images = []
         with open(path, 'r') as fp:
-            self.image_ids = json.load(fp)
-        for image_id in self.image_ids:
-            file_path = f'/cs/labs/oabend/uriber/datasets/flickr30/images/{image_id}.jpg'
+            data = json.load(fp)
+        self.image_ids = []
+        for sample in data:
+            if type(sample) == int:
+                # Only image ids
+                image_id = sample
+                file_path = f'/cs/labs/oabend/uriber/datasets/flickr30/images/{image_id}.jpg'
+            elif type(sample) == dict:
+                # Image ids and paths
+                assert len(sample) == 2
+                image_id = sample['image_id']
+                file_path = sample['file_path']
+            self.image_ids.append(image_id)
             image = io.imread(file_path)
             image = preprocess(Image.fromarray(image)).squeeze(0)
             self.images.append(image)
