@@ -36,7 +36,7 @@ venv/bin/python predict.py --image_ids_path ${BASE_DIR}/data/base_train_data/add
 echo "$MSG_PREFIX Prepare own training data"
 venv/bin/python ${BASE_DIR}/convert_to_training_data_coco.py ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}.json ${BASE_DIR}/data/own_train_data/own_train_data_${EXP_IND}.json ${EXP_IND}
 echo "$MSG_PREFIX Own preprocess"
-venv/bin/python process_flickr.py --clip_model_path ViT-B/32 --image_path /cs/labs/oabend/uriber/datasets/flickr30/images --caption_path ${BASE_DIR}/data/own_train_data/own_train_data_${EXP_IND}.json --output_path ${BASE_DIR}/data/own_train_data/preprocessed_data_${EXP_IND}.pkl
+venv/bin/python process_flickr.py --clip_model_path ViT-B/32 --image_path /cs/labs/oabend/uriber/datasets/flickr30/images --train_set_file ${BASE_DIR}/data/own_train_data/own_train_data_${EXP_IND}.json --output_path ${BASE_DIR}/data/own_train_data/preprocessed_data_${EXP_IND}.pkl
 echo "$MSG_PREFIX Own training"
 venv/bin/python train.py --data_path ${BASE_DIR}/data/own_train_data/preprocessed_data_${EXP_IND}.pkl --gpt2_path pretrain_models/gpt2 --bert_path pretrain_models/bert --output_path ${BASE_DIR}/output/exp_${EXP_IND}_own --lr 2e-5 --epochs 10 --prefix_len 10 --constant_len 10 --clip_size 512 --bs_train 40 --dev_size 100 --bs_eval 10 --max_len 100 --warmup_steps 5000 --eval_step 500 --finetune_gpt2 --mapping_type mlp --do_train --load_path ${BASE_DIR}/output/exp_${EXP_IND}_base/checkpoint-last.pt
 echo "$MSG_PREFIX Own inference"
@@ -59,7 +59,7 @@ venv/bin/python translate.py --input_file ${BASE_DIR}/data/infer/base_infer_on_a
 echo "$MSG_PREFIX Prepare reformulations training data"
 venv/bin/python ${BASE_DIR}/convert_to_training_data_coco.py ${BASE_DIR}/data/infer/base_infer_on_additional_train_${EXP_IND}_reformulated.json ${BASE_DIR}/data/reformulations_train_data/reformulations_train_data_${EXP_IND}.json ${EXP_IND}
 echo "$MSG_PREFIX Reformulations preprocess"
-venv/bin/python process_flickr.py --clip_model_path ViT-B/32 --image_path /cs/labs/oabend/uriber/datasets/flickr30/images --caption_path ${BASE_DIR}/data/reformulations_train_data/reformulations_train_data_${EXP_IND}.json --output_path ${BASE_DIR}/data/reformulations_train_data/preprocessed_data_${EXP_IND}.pkl
+venv/bin/python process_flickr.py --clip_model_path ViT-B/32 --image_path /cs/labs/oabend/uriber/datasets/flickr30/images --train_set_file ${BASE_DIR}/data/reformulations_train_data/reformulations_train_data_${EXP_IND}.json --output_path ${BASE_DIR}/data/reformulations_train_data/preprocessed_data_${EXP_IND}.pkl
 echo "$MSG_PREFIX Reformulations training"
 venv/bin/python train.py --data_path ${BASE_DIR}/data/reformulations_train_data/preprocessed_data_${EXP_IND}.pkl --gpt2_path pretrain_models/gpt2 --bert_path pretrain_models/bert --output_path ${BASE_DIR}/output/exp_${EXP_IND}_reformulations --lr 2e-5 --epochs 10 --prefix_len 10 --constant_len 10 --clip_size 512 --bs_train 40 --dev_size 100 --bs_eval 10 --max_len 100 --warmup_steps 5000 --eval_step 500 --finetune_gpt2 --mapping_type mlp --do_train --load_path ${BASE_DIR}/output/exp_${EXP_IND}_base/checkpoint-last.pt
 echo "$MSG_PREFIX Reformulations inference"
