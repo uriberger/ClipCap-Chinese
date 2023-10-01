@@ -1,4 +1,5 @@
 import torch
+import clip
 from torch.utils.data import Dataset
 import os
 import pickle
@@ -66,6 +67,7 @@ class ClipCapDataset(Dataset):
 class ImageDataset(Dataset):
     def __init__(self, path, preprocess):
         self.images = []
+        clip_model, _ = clip.load('ViT-B/32', device=torch.device('cuda'), jit=False)
         with open(path, 'r') as fp:
             data = json.load(fp)
         self.image_ids = []
@@ -80,8 +82,10 @@ class ImageDataset(Dataset):
                 file_path = sample['file_path']
             self.image_ids.append(image_id)
             image = io.imread(file_path)
-            image = preprocess(Image.fromarray(image)).squeeze(0)
-            self.images.append(image)
+            image = preprocess(Image.fromarray(image)).to(torch.device('cuda'))
+            with torch.no_grad():
+                clip_embed = clip_model.encode_image(image).cpu().squeeze(0)
+            self.images.append(clip_embed)
 
     def __getitem__(self, item):
         return self.images[item], self.image_ids[item]

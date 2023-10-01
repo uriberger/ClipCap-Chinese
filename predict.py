@@ -143,7 +143,8 @@ def main(args):
         images, image_ids = data
         images = images.to(args.device)
         batch_size = len(image_ids)
-        clip_embeds = clip_model.encode_image(images)
+        #clip_embeds = clip_model.encode_image(images)
+        clip_embeds = images
         clip_embeds = clip_embeds.unsqueeze(1).repeat(1, args.num_generate, 1).view(-1, clip_embeds.size(-1)).float()
         captions = generate(model, clip_embeds, tokenizer, args)
 
