@@ -82,7 +82,7 @@ class ImageDataset(Dataset):
                 file_path = sample['file_path']
             self.image_ids.append(image_id)
             image = io.imread(file_path)
-            image = preprocess(Image.fromarray(image)).to(torch.device('cuda'))
+            image = preprocess(Image.fromarray(image)).unsqueeze(0).to(torch.device('cuda'))
             with torch.no_grad():
                 clip_embed = clip_model.encode_image(image).cpu().squeeze(0)
             self.images.append(clip_embed)
