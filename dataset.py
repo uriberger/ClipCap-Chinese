@@ -71,6 +71,7 @@ class ImageDataset(Dataset):
         with open(path, 'r') as fp:
             data = json.load(fp)
         self.image_ids = []
+        visited_image_ids = {}
         for sample in data:
             if type(sample) == int:
                 # Only image ids
@@ -80,6 +81,9 @@ class ImageDataset(Dataset):
                 # Image ids and paths
                 image_id = sample['image_id']
                 file_path = sample['file_path']
+            if image_id in visited_image_ids:
+                continue
+            visited_image_ids[image_id] = True
             self.image_ids.append(image_id)
             image = io.imread(file_path)
             image = preprocess(Image.fromarray(image)).unsqueeze(0).to(torch.device('cuda'))
