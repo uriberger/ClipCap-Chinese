@@ -10,7 +10,7 @@ from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
 from pycocoevalcap.cider.cider import Cider
 from evaluate import load
-from utils import get_flickr8kcn_data
+from utils import get_flickr8kcn_data, get_xm3600_data
 
 def compute_metrics(references, candidates):
     ###BLEU#####
@@ -47,8 +47,11 @@ def compute_metrics(references, candidates):
 
     return {'bleu1': bleu[0], 'bleu2': bleu[1], 'bleu3': bleu[2], 'bleu4': bleu[3], 'meteor': meteor, 'rouge': rouge, 'cider': cider, 'bertscore': bertscore}
 
-assert len(sys.argv) > 1, 'Please insert result files'
-input_patterns = sys.argv[1:]
+assert len(sys.argv) > 2, 'Please insert result files'
+dataset = sys.argv[1]
+dataset_list = ['flickr8kcn', 'xm3600']
+assert dataset in dataset_list, f'Unknown dataset {dataset}; Please choose one of {dataset_list}'
+input_patterns = sys.argv[2:]
 data = {}
 for pattern in input_patterns:
     file_name = pattern.split('/')[-1]
@@ -66,8 +69,11 @@ for pattern in input_patterns:
 
 # Prepare gt captions
 gt_data = defaultdict(list)
-flickr8kcn_data = get_flickr8kcn_data()
-for sample in flickr8kcn_data:
+if dataset == 'flickr8kcn':
+    gt_raw_data = get_flickr8kcn_data()
+elif dataset == 'xm3600':
+    gt_raw_data = get_xm3600_data()
+for sample in gt_raw_data:
     non_tokenized_caption = ''.join(sample['caption'].split())
     tokenized_caption = ' '.join(list(jieba.cut(non_tokenized_caption, cut_all=False)))
     gt_data[sample['image_id']].append(tokenized_caption)

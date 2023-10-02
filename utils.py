@@ -21,6 +21,11 @@ def get_flickr8kcn_data():
             
     return image_id_captions_pairs
 
+def get_xm3600_data():
+    with open('crossmodal3600_zh.json', 'r') as fp:
+        data = json.load(fp)
+    return data
+
 def get_flickr30k_data():
     with open(flickr30k_path, 'r') as fp:
         flickr_data = json.load(fp)['images']
